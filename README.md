@@ -4,7 +4,7 @@
 
 **The institutional toolkit for catching overfit trading strategies.**
 
-Combinatorial Purged Cross-Validation · Probabilistic & Deflated Sharpe Ratio · static look-ahead audit.
+Combinatorial Purged Cross-Validation · Probabilistic & Deflated Sharpe Ratio · static look-ahead audit · perpetual-futures cost modeling.
 Pure Python (NumPy / SciPy), no heavyweight dependencies, fully tested.
 
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
@@ -33,6 +33,7 @@ This toolkit attacks both, using the methods institutional desks actually rely o
 | `cpcv.py` | *Does the edge survive many independent out-of-sample paths, not one lucky history?* |
 | `deflated_sharpe.py` | *What's the probability the edge is real, after correcting for how many variants I tried?* |
 | `lookahead_audit.py` | *Does my backtest code cheat by peeking into the future?* |
+| `perp_costs.py` | *On perps, what do funding and leverage really cost — and where does the position get liquidated?* |
 
 ---
 
@@ -125,10 +126,38 @@ transaction-cost model, and lagging-indicator misuse. Verdict severity is `FAIL 
 
 ---
 
+## 4 · Perpetual futures cost modeling (`perp_costs.py`)
+
+Crypto perpetuals carry costs a candle-level backtest usually ignores: **funding** paid every 8h
+while a position is open, and **liquidation** — a leveraged position can be wiped out *before* its
+stop-loss is hit. This module models both for isolated, linear USDT-margined contracts. Pure
+standard library, zero dependencies.
+
+```python
+from perp_costs import liquidation_price, funding_pnl, net_perp_pnl
+
+# Where does a 10x long get liquidated? (isolated margin, 0.5% maintenance)
+print(liquidation_price(entry=100, side="LONG", leverage=10, mmr=0.005))   # 90.5
+
+# Funding paid by a long over the settlements it was held through (rate > 0 => long pays):
+print(funding_pnl("LONG", notional=1000, rates=[0.0001, 0.0001, -0.0002]))  # 0.0
+
+# Full realized PnL including round-trip taker fees + funding:
+print(net_perp_pnl("LONG", entry=100, exit_price=110, qty=1,
+                   funding_rates=[0.0005, 0.0005], fee_rate=0.00055))
+```
+
+Also exposes `liquidation_hit` (did a bar reach the liquidation level), `maintenance_margin`, and
+`position_notional` (size a position so its stop-loss equals a fixed risk amount). The liquidation
+identity is `liq_long = entry · (1 − 1/L + mmr + fee)` (short is symmetric); funding accrues over the
+settlement rates the position was held across.
+
+---
+
 ## Tests
 
 ```bash
-pytest -q          # cpcv, deflated_sharpe and lookahead_audit are covered by SDET suites
+pytest -q          # cpcv, deflated_sharpe, lookahead_audit and perp_costs are covered by SDET suites
 ```
 
 Each module ships with self-tests against known-answer cases (e.g. purging is asserted to drop the
