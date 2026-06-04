@@ -8,7 +8,7 @@ Combinatorial Purged Cross-Validation Â· Probabilistic & Deflated Sharpe Ratio Â
 Pure Python (NumPy / SciPy), no heavyweight dependencies, fully tested.
 
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
-![tests](https://img.shields.io/badge/tests-passing-brightgreen)
+[![tests](https://github.com/sergosumy007/strat-validation/actions/workflows/tests.yml/badge.svg)](https://github.com/sergosumy007/strat-validation/actions/workflows/tests.yml)
 ![license](https://img.shields.io/badge/license-MIT-black)
 ![deps](https://img.shields.io/badge/deps-numpy%20%7C%20scipy%20%7C%20pandas-lightgrey)
 
