@@ -171,6 +171,33 @@ MIT — use it, fork it, ship it.
 
 ---
 
+## Beyond this repo
+
+The four modules above are the open core. The paid audit runs a larger pipeline on top of them:
+
+- **Bagged CPCV:** ensemble splits + stationary block bootstrap. The edge comes back as a
+  confidence band, not a single number that may be luck.
+- **Real-exit lens:** validation on the strategy's own exit logic, with transaction costs inside
+  the engine. Fixed-RR proxies routinely misprice timeout and convex exits; I saw strategies flip
+  from "no edge" to significant once measured on their true exit.
+- **Crisis replay:** COVID, LUNA and FTX windows, not just the calm years.
+- **Tail and capacity:** EVT/GPD tail fit, CVaR, and a square-root market-impact estimate of how
+  much size the edge holds before slippage eats it.
+- **Regime maps:** HMM and statistical jump models. The jump model switches state far less often,
+  which is what you want from a kill-switch.
+- **Universe honesty:** correlation clustering (d = √(2(1−ρ))) shows whether your 80 symbols are
+  80 independent bets or five correlated ones.
+- **Order-flow toxicity:** VPIN computed from plain OHLCV, no tick data required. Useful for
+  entries that fade forced moves.
+
+A recent internal case: a strategy scored 56/100 on its first validation pass. The failing tests
+pointed at the causes (one side lost money everywhere, the edge only lived outside crisis regimes,
+entries needed a toxicity filter). After those fixes the same pipeline scored it 88/100 with an
+out-of-sample profit factor of 1.87. The score matters less than the diagnosis: the tests that fail
+a strategy also tell you what to repair.
+
+---
+
 ## Work with me
 
 I run **fixed-price strategy validation audits** built on this exact stack — I tell you whether your
