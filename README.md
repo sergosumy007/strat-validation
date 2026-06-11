@@ -154,6 +154,28 @@ settlement rates the position was held across.
 
 ---
 
+## How to read the metrics
+
+What each number tells you, and when it should worry you:
+
+| Metric | What it tells you |
+|---|---|
+| **PSR** | Probability the TRUE Sharpe beats the benchmark given sample size, skew, kurtosis. 95%+ is strong; below 60% the edge is not established. |
+| **DSR** | PSR after charging for every configuration you tried. The honest number: high Sharpe with low DSR means you found noise by searching hard. |
+| **SR0 (DSR barrier)** | The Sharpe a pure-noise search of M trials would produce. Your Sharpe must clear this bar before it means anything. |
+| **MinTRL** | Minimum track record (trades) to confirm the edge at 95% confidence. If it exceeds your sample, the verdict is "not enough data", not "edge". |
+| **CPCV folds** | Independent out-of-sample paths with purging + embargo. The edge must be positive on most paths, not on one lucky history. |
+| **Look-ahead verdict** | Static audit of the code for future-data leaks (`arr[i+1]`, `shift(-1)`, unlagged rolling stats). One FAIL invalidates every other number. |
+| **Liquidation price** | On perps a leveraged position can be wiped out before its stop-loss is hit. If your backtest never checks this, its drawdowns are fiction. |
+
+Try it end-to-end on synthetic data:
+
+```bash
+python examples/quickstart.py
+```
+
+---
+
 ## Tests
 
 ```bash
